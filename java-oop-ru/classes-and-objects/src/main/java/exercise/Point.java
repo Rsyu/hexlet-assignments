@@ -1,9 +1,6 @@
 package exercise;
 
 // BEGIN
-package exercise;
-
-// Класс точки
 public class Point {
     private final int x;
     private final int y;

@@ -1,8 +1,6 @@
 package exercise;
 
 // BEGIN
-import java.awt.Point;
-
 public class Circle {
     private Point center;
     private int radius;

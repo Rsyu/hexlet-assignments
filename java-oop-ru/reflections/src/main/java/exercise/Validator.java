@@ -29,6 +29,7 @@ class Validator {
     public static Map<String, List<String>> advancedValidate(Object instance) {
         List<Field> fields = List.of(instance.getClass().getDeclaredFields());
         Map<String, List<String>> validationErrors = new HashMap<>();
+
         fields.stream()
             .filter(field -> field.isAnnotationPresent(NotNull.class) || field.isAnnotationPresent(MinLength.class))
             .forEach(field -> {
@@ -38,6 +39,7 @@ class Validator {
                     validationErrors.put(fieldName, errors);
                 }
             });
+
         return validationErrors;
     }
 
@@ -57,12 +59,13 @@ class Validator {
         }
 
         if (field.isAnnotationPresent(MinLength.class)) {
-            int minLength = field.getAnnotation(MinLength.class).minLength();
+            int minLength = field.getAnnotation(MinLength.class).value(); // ← исправлено
             if (value == null || value.length() < minLength) {
                 errors.add("length less than " + minLength);
             }
         }
+
         return errors;
     }
 }
-// END
+

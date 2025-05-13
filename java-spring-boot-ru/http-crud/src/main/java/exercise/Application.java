@@ -58,10 +58,10 @@ public class Application {
             if (post.getId().equals(id)) {
                 post.setTitle(newPost.getTitle());
                 post.setBody(newPost.getBody());
-                break;
+                return post;
             }
         }
-        return newPost;
+        return null;
     }
 
     // Удаление поста

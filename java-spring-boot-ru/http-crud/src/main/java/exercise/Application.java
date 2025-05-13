@@ -1,7 +1,7 @@
 package exercise;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import exercise.model.Post;
@@ -18,55 +19,53 @@ import exercise.model.Post;
 @SpringBootApplication
 @RestController
 public class Application {
-
     // Хранилище добавленных постов
-    private List<Post> posts = new ArrayList<>();
+    private List<Post> posts = Data.getPosts();
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 
-    // Получение всех постов
-    @GetMapping("/posts")
-    public List<Post> index() {
-        return posts;
+    // BEGIN
+  @GetMapping("/posts")
+    public List<Post> index(
+        @RequestParam(defaultValue = "1") Integer page,
+        @RequestParam(defaultValue = "10") Integer limit) {
+
+        return posts.stream().skip((page - 1) * limit).limit(limit).toList();
     }
 
-    // Получение одного поста
-    @GetMapping("/posts/{id}")
-    public Post show(@PathVariable String id) {
-        return posts.stream()
-            .filter(p -> p.getId().equals(id))
-            .findFirst()
-            .orElse(null); // Возвращаем null, если пост не найден
-    }
-
-    // Создание нового поста
     @PostMapping("/posts")
     public Post create(@RequestBody Post post) {
-        String newId = "post" + (posts.size() + 1);  // Генерация уникального ID
-        post.setId(newId);
         posts.add(post);
         return post;
     }
 
-    // Обновление поста
+    @GetMapping("/posts/{id}")
+    public Optional<Post> show(@PathVariable String id) {
+        var post = posts.stream()
+            .filter(p -> p.getId().equals(id))
+            .findFirst();
+        return post;
+    }
+
     @PutMapping("/posts/{id}")
-    public Post update(@PathVariable String id, @RequestBody Post newPost) {
-        for (var post : posts) {
-            if (post.getId().equals(id)) {
-                post.setTitle(newPost.getTitle());
-                post.setBody(newPost.getBody());
-                return post;  // Возвращаем обновленный пост
-            }
+    public Post update(@PathVariable String id, @RequestBody Post data) {
+        var maybePost = posts.stream()
+            .filter(p -> p.getId().equals(id))
+            .findFirst();
+        if (maybePost.isPresent()) {
+            var post = maybePost.get();
+            post.setId(data.getId());
+            post.setTitle(data.getTitle());
+            post.setBody(data.getBody());
         }
-        return null;  // Возвращаем null, если пост с таким id не найден
+        return data;
     }
 
-    // Удаление поста
     @DeleteMapping("/posts/{id}")
-    public void delete(@PathVariable String id) {
+    public void destroy(@PathVariable String id) {
         posts.removeIf(p -> p.getId().equals(id));
-    }
+    }    
+    // END
 }
-

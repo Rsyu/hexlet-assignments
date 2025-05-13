@@ -31,47 +31,46 @@ public class Application {
     }
 
     // BEGIN
- // GET /posts — список всех постов + заголовок X-Total-Count
-    @GetMapping("/posts")
-    public ResponseEntity<List<Post>> index() {
+  @GetMapping("/posts")
+    public ResponseEntity<List<Post>> index(
+        @RequestParam(defaultValue = "1") Integer page,
+        @RequestParam(defaultValue = "10") Integer limit) {
+
         return ResponseEntity
                 .ok()
                 .header("X-Total-Count", String.valueOf(posts.size()))
-                .body(posts);
+                .body(posts.stream().skip((page - 1) * limit).limit(limit).toList());
     }
 
-    // GET /posts/{id} – получение поста по id или 404
-    @GetMapping("/posts/{id}")
-    public ResponseEntity<Post> show(@PathVariable String id) {
-        return posts.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst()
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    // POST /posts – создание поста и возврат 201
     @PostMapping("/posts")
     public ResponseEntity<Post> create(@RequestBody Post post) {
-        String newId = "post" + (posts.size() + 1);
-        post.setId(newId);
         posts.add(post);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(post);
+        URI location = URI.create("/posts/" + post.getId());
+        return ResponseEntity.created(location).body(post);
     }
 
-    // PUT /posts/{id} – обновление поста или 404
+    @GetMapping("/posts/{id}")
+    public ResponseEntity<Post> show(@PathVariable String id) {
+        var post = posts.stream()
+            .filter(p -> p.getId().equals(id))
+            .findFirst();
+        return ResponseEntity.of(post);
+    }
+
     @PutMapping("/posts/{id}")
-    public ResponseEntity<Post> update(@PathVariable String id, @RequestBody Post newPost) {
-        for (Post post : posts) {
-            if (post.getId().equals(id)) {
-                post.setTitle(newPost.getTitle());
-                post.setBody(newPost.getBody());
-                return ResponseEntity.ok(post);
-            }
+    public ResponseEntity<Post> update(@PathVariable String id, @RequestBody Post data) {
+        var maybePost = posts.stream()
+            .filter(p -> p.getId().equals(id))
+            .findFirst();
+        var status = HttpStatus.NOT_FOUND;
+        if (maybePost.isPresent()) {
+            var post = maybePost.get();
+            post.setId(data.getId());
+            post.setTitle(data.getTitle());
+            post.setBody(data.getBody());
+            status = HttpStatus.OK;
         }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(status).body(data);
     }    
     // END
 

@@ -1,21 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>User Detail</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<div class="container mt-5">
-    <h1>User Info</h1>
-    <ul class="list-group">
-        <li class="list-group-item"><strong>ID:</strong> @page.getUser().getId()</li>
-        <li class="list-group-item"><strong>First Name:</strong> @page.getUser().getFirstName()</li>
-        <li class="list-group-item"><strong>Last Name:</strong> @page.getUser().getLastName()</li>
-        <li class="list-group-item"><strong>Email:</strong> @page.getUser().getEmail()</li>
-    </ul>
-    <a class="btn btn-secondary mt-3" href="/users">Back to list</a>
-</div>
-</body>
-</html>
+@import exercise.dto.users.UserPage
+@param UserPage page
 
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We"
+            crossorigin="anonymous">
+    <title>Hello Hexlet!</title>
+  </head>
+  <body>
+    <div class="mx-auto p-4 py-md-5">
+      <main>
+        <h2>${page.getUser().getFirstName()} ${page.getUser().getLastName()}</h2>
+        <div>${page.getUser().getEmail()}</div>
+      </main>
+    </div>
+  </body>
+</html>

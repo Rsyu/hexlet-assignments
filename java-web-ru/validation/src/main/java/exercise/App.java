@@ -31,44 +31,33 @@ public final class App {
         });
 
         // BEGIN
-                app.get("/articles/build", ctx -> {
-            var page = new BuildArticlePage(null, null, List.of());
+        app.get("articles/build", ctx -> {
+            var page = new BuildArticlePage();
             ctx.render("articles/build.jte", model("page", page));
         });
 
         app.post("/articles", ctx -> {
-            String title = ctx.formParam("title", String.class)
-                .check(t -> t != null && t.trim().length() >= 2, "Название не должно быть короче двух символов")
-                .getOrDefault(null);
+            try {
+                var title = ctx.formParamAsClass("title", String.class)
+                    .check(value -> value.length() >= 2, "Название не должно быть короче двух символов")
+                    .check(value -> !ArticleRepository.existsByTitle(value), "Статья с таким названием уже существует")
+                    .get();
 
-            String content = ctx.formParam("content", String.class)
-                .check(c -> c != null && c.trim().length() >= 10, "Статья должна быть не короче 10 символов")
-                .getOrDefault(null);
+                var content = ctx.formParamAsClass("content", String.class)
+                    .check(value -> value.length() >= 10, "Статья должна быть не короче 10 символов")
+                    .get();
 
-            List<String> errors = new java.util.ArrayList<>();
+                var article = new Article(title, content);
+                ArticleRepository.save(article);
+                ctx.redirect("/articles");
 
-            if (title == null) {
-                errors.add("Название не должно быть короче двух символов");
+            } catch (ValidationException e) {
+                var title = ctx.formParam("title");
+                var content = ctx.formParam("content");
+                var page = new BuildArticlePage(title, content, e.getErrors());
+                ctx.render("articles/build.jte", model("page", page)).status(422);
             }
-            if (content == null) {
-                errors.add("Статья должна быть не короче 10 символов");
-            }
-            if (title != null && ArticleRepository.existsByTitle(title)) {
-                errors.add("Статья с таким названием уже существует");
-            }
-
-            if (!errors.isEmpty()) {
-                ctx.status(422);
-                var page = new BuildArticlePage(title, content, errors);
-                ctx.render("articles/build.jte", model("page", page));
-                return;
-            }
-
-            var article = new Article(title.trim(), content.trim());
-            ArticleRepository.save(article);
-            ctx.redirect("/articles");
         });
-
         // END
 
         return app;

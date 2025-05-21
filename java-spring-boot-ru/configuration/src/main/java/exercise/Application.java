@@ -21,16 +21,21 @@ public class Application {
     private List<User> users = Data.getUsers();
 
     // BEGIN
-@Autowired
-private UserProperties userProperties;
+  @Autowired
+    private UserProperties usersInfo;
 
-@GetMapping("/admins")
-public List<String> getAdminNames() {
-    return userProperties.getAdmins().stream()
-            .map(email -> email.split("@")[0]) // Получаем имя из email
-            .sorted() // Сортируем по имени
-            .toList(); // Можно использовать .collect(Collectors.toList()) если Java < 16
-}    
+    @GetMapping("/admins")
+    public List<String> getAdmins() {
+
+        List<String> adminEmails = usersInfo.getAdmins();
+
+        return users.stream()
+            .filter(u -> adminEmails.contains(u.getEmail()))
+            .map(u -> u.getName())
+            .sorted()
+            .toList();
+
+    }    
     // END
 
     @GetMapping("/users")

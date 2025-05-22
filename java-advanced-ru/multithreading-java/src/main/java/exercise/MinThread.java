@@ -1,33 +1,30 @@
 package exercise;
 
 // BEGIN
-import java.util.logging.Logger;
+class MinThread extends Thread {
 
-public class MinThread extends Thread {
-    private static final Logger LOGGER = Logger.getLogger(MinThread.class.getName());
+    private int[] numbers;
+    private int minimum;
 
-    private final int[] numbers;
-    private int min;
-
-    public MinThread(int[] numbers) {
+    MinThread(int[] numbers) {
         this.numbers = numbers;
     }
 
+    @Override
     public void run() {
-        LOGGER.info("Thread " + Thread.currentThread().getName() + " started");
+        int min = numbers[0];
 
-        min = numbers[0];
-        for (int num : numbers) {
-            if (num < min) {
-                min = num;
+        for (int currentNumber : numbers) {
+            if (currentNumber < min) {
+                min = currentNumber;
             }
         }
 
-        LOGGER.info("Thread " + Thread.currentThread().getName() + " finished");
+        minimum = min;
     }
 
     public int getMin() {
-        return min;
+        return minimum;
     }
 }
 // END

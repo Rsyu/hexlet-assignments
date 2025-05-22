@@ -1,33 +1,30 @@
 package exercise;
 
 // BEGIN
-import java.util.logging.Logger;
+class MaxThread extends Thread {
 
-public class MaxThread extends Thread {
-    private static final Logger LOGGER = Logger.getLogger(MaxThread.class.getName());
+    private int[] numbers;
+    private int maximum;
 
-    private final int[] numbers;
-    private int max;
-
-    public MaxThread(int[] numbers) {
+    MaxThread(int[] numbers) {
         this.numbers = numbers;
     }
 
+    @Override
     public void run() {
-        LOGGER.info("Thread " + Thread.currentThread().getName() + " started");
+        int max = numbers[0];
 
-        max = numbers[0];
-        for (int num : numbers) {
-            if (num > max) {
-                max = num;
+        for (int currentNumber : numbers) {
+            if (currentNumber > max) {
+                max = currentNumber;
             }
         }
 
-        LOGGER.info("Thread " + Thread.currentThread().getName() + " finished");
+        maximum = max;
     }
 
     public int getMax() {
-        return max;
+        return maximum;
     }
 }
 // END
